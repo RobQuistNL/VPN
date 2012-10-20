@@ -11,8 +11,14 @@ class DB {
 	}
 	
 	function install() {
-		$stm = "CREATE TABLE logins (Id integer PRIMARY KEY," . 
-       "ipaddress varchar(39) NOT NULL, logged_time datetime, username varchar(100))";
+		$stm = 	"CREATE TABLE logins (Id integer PRIMARY KEY," . 
+				"ipaddress varchar(39) NOT NULL, logged_time datetime, username varchar(100))";
+		@$q = sqlite_exec($this->handle, $stm, $error);
+		if (!$q) {
+		   throw new Exception ("Cannot install database. $error");
+		}
+		
+		$stm = "CREATE INDEX logged_time_index ON logins (logged_time)";
 		@$q = sqlite_exec($this->handle, $stm, $error);
 		if (!$q) {
 		   throw new Exception ("Cannot install database. $error");

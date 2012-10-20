@@ -1,20 +1,24 @@
 <?php
-
+/* 
+ * TemplateParser reads in a templatefile, which has some variables in it.
+ * Those variables will be replaced with content from the class.
+ * 
+*/
 class SimpleTemplateParser {
 	
 	private $content;
 	private $title;
-	private $templateFile='';
+	private $templateFile = '';
 	
-	private $isParsed=false;
+	private $isParsed = false;
 	
-	private $parsevars=array();
+	private $parsevars = array();
 						
-	function __construct() {
+	public function __construct() {
 		$this->initParseVars();
 	}
 	
-	function initParseVars() {
+	private function initParseVars() {
 		/* Add some default values to be parsed. Can be edited for lateron */
 		
 		$this->parsevars=array(	'CONTENT'=>$this->content,
@@ -22,28 +26,26 @@ class SimpleTemplateParser {
 								);
 	}
 	
-	function setTemplate($file) {
+	public function setTemplate($file) {
 		$this->templateFile=$file;
 	}
 	
-	function setContent($string) {
+	public function setContent($string) {
 		$this->content=$string;
 	}
-	function setTitle($string) {
+	public function setTitle($string) {
 		$this->title=$string;
 	}
 	
-	function appendContent($string) {
+	public function appendContent($string) {
 		$this->content.=$string;
 	}
 	
-	function prependContent($string) {
+	public function prependContent($string) {
 		$this->content=$string.$this->content;
 	}
 	
-	
-	
-	function parse() {
+	public function parse() {
 		if ($this->templateFile=='') {
 			throw new Exception('No template file selected.');
 		}
@@ -65,7 +67,7 @@ class SimpleTemplateParser {
 
 	}
 	
-	function getOutput() {
+	public function getOutput() {
 	
 		if ($this->isParsed) {
 			return $this->output;

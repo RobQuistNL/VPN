@@ -1,4 +1,5 @@
 <?php
+//Simple function to include Zend Framework 2 as a standalone app.
 $zf2Path = APP_PATH.'/vendor/zf2/library';
 
 if ($zf2Path) {

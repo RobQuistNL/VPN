@@ -24,7 +24,9 @@ require "inc/config.inc.php";
 /* Include ZF2 */
 require "inc/embed_zf2.inc.php";
 
-if ($_SESSION['ip']==$_SERVER["REMOTE_ADDR"]) {
+if ($_SESSION['ip']!=$_SERVER["REMOTE_ADDR"]) {
+	header('Location: index.php');
+}
 	
 	function Zip($source, $destination){
     if (extension_loaded('zip') === true)    {
@@ -105,8 +107,6 @@ ob_clean();
 flush();
 readfile(TEMP_DL_FOLDER.'/'.$_SESSION['username'].'.zip');
 exit;
-
-} 
 
 ?>
 

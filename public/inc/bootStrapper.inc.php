@@ -1,31 +1,32 @@
 <?php
+/* 
+ * Bootstrapper is a class to easily create bootstrap components.
+*/
 class BootStrapper {
 	
-	function heroUnit($title,$content) {
+	public function heroUnit($title,$content) {
 		return '<div class="hero-unit">
         <h1>'.$title.'</h1>
         <p>'.$content.'</p>
       </div>';
 	}
-	function row($content) {
+	public function row($content) {
 		return '<div class="row">'.$content.'</div>';
 	}
 	
-	function errormessage($content) {
+	public function errormessage($content) {
 		return '<div class="alert alert-error">'.$content.'</div>';
 	}
 	
-	function successmessage($content) {
+	public function successmessage($content) {
 		return '<div class="alert alert-success">'.$content.'</div>';
 	}
 	
-	function block($size,$content) {
-		return '<div class="span'.$size.'">
-		'.$content.'
-		</div>';
+	public function block($size,$content) {
+		return '<div class="span'.$size.'">'.$content.'</div>';
 	}
 	
-	function loginForm ($usernametext,$passwordtext,$signintext,$action) {
+	public function loginForm ($usernametext,$passwordtext,$signintext,$action) {
 		return '<form class="form-horizontal" method="post" action="'.$action.'">
 				  <div class="control-group">
 					<label class="control-label" for="inputUsername">'.$usernametext.'</label>
