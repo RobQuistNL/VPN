@@ -8,15 +8,10 @@
 **/
 /* Start session */
 session_start();
-if (!isset($_SESSION['username'])) {
-	die;
-}
-if (!isset($_SESSION['ip'])) {
-	die;
-}
+
 /* DEBUG DATA */
-error_reporting(E_ALL);
-ini_set('display_errors',1);
+//error_reporting(E_ALL);
+//ini_set('display_errors',1);
 
 /* Include Config */
 require "inc/config.inc.php";
@@ -24,40 +19,47 @@ require "inc/config.inc.php";
 /* Include ZF2 */
 require "inc/embed_zf2.inc.php";
 
-if ($_SESSION['ip']!=$_SERVER["REMOTE_ADDR"]) {
-	header('Location: index.php');
+/* Catch not logged-in and stolen sessions */
+if (!isset($_SESSION['username']) || !isset($_SESSION['ip'])) {
+    header('Location: index.php');
+    die;
 }
-	
-	function Zip($source, $destination){
-    if (extension_loaded('zip') === true)    {
-        if (file_exists($source) === true)        {
-                $zip = new ZipArchive();
-                if ($zip->open($destination, ZIPARCHIVE::CREATE) === true)                {
-                        $source = realpath($source);
-                        if (is_dir($source) === true)                        {
-                                $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source), RecursiveIteratorIterator::SELF_FIRST);
-                                foreach ($files as $file)                              {
-                                        $file = realpath($file);
-                                        if (is_dir($file) === true)                                        {
-                                                $zip->addEmptyDir(str_replace($source . '/', '', $file . '/'));
-                                        }
-                                        else if (is_file($file) === true)                                        {
-                                                $zip->addFromString(str_replace($source . '/', '', $file), file_get_contents($file));
-                                        }
-                                }
-                        }
-                        else if (is_file($source) === true)                        {
-                                $zip->addFromString(basename($source), file_get_contents($source));
-                        }
-                }
+if ($_SESSION['ip']!=$_SERVER["REMOTE_ADDR"]) {
+    header('Location: index.php');
+    die;
+}
 
-                return $zip->close();
+    
+function Zip($source, $destination) {
+    /* A function to zip a whole directory, recursively. */
+    if (extension_loaded('zip') === true) {
+        if (file_exists($source) === true) {
+            $zip = new ZipArchive();
+            if ($zip->open($destination, ZIPARCHIVE::CREATE) === true) {
+                $source = realpath($source);
+                if (is_dir($source) === true) {
+                    $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source), RecursiveIteratorIterator::SELF_FIRST);
+                    foreach ($files as $file) {
+                        $file = realpath($file);
+                        if (is_dir($file) === true) {
+                            $zip->addEmptyDir(str_replace($source . '/', '', $file . '/'));
+                        }
+                        else if (is_file($file) === true) {
+                            $zip->addFromString(str_replace($source . '/', '', $file), file_get_contents($file));
+                        }
+                    }
+                }
+                else if (is_file($source) === true) {
+                    $zip->addFromString(basename($source), file_get_contents($source));
+                }
+            }
+
+            return $zip->close();
         }
     }
-
     return false;
 }
-	
+    
 $ovpnContent=<<<TXT
 
 client
@@ -82,15 +84,15 @@ reneg-sec 0
 
 TXT;
 try {
-	mkdir(TEMP_DL_FOLDER.'/'.$_SESSION['username'],0777); //Make the dir
-	mkdir(TEMP_DL_FOLDER.'/'.$_SESSION['username'].'/config',0777); 
-	mkdir(TEMP_DL_FOLDER.'/'.$_SESSION['username'].'/config/'.$_SESSION['username'].'@vpn.enrise.com/',0777); 
-	$configFolder=TEMP_DL_FOLDER.'/'.$_SESSION['username'].'/config/'.$_SESSION['username'].'@vpn.enrise.com';
-	$fh = fopen($configFolder.'/'.$_SESSION['username'].'@vpn.enrise.com.ovpn', 'w');
-	fwrite($fh, $ovpnContent);
-	fclose($fh);
+    mkdir(TEMP_DL_FOLDER.'/'.$_SESSION['username'],0777); //Make the dir
+    mkdir(TEMP_DL_FOLDER.'/'.$_SESSION['username'].'/config',0777); 
+    mkdir(TEMP_DL_FOLDER.'/'.$_SESSION['username'].'/config/'.$_SESSION['username'].'@vpn.enrise.com/',0777); 
+    $configFolder=TEMP_DL_FOLDER.'/'.$_SESSION['username'].'/config/'.$_SESSION['username'].'@vpn.enrise.com';
+    $fh = fopen($configFolder.'/'.$_SESSION['username'].'@vpn.enrise.com.ovpn', 'w');
+    fwrite($fh, $ovpnContent);
+    fclose($fh);
 } catch (Exception $e) {
-	echo 'Files could not be generated! Please contact an administrator.';
+    echo 'Files could not be generated! Please contact an administrator.';
 }
 
 Zip(TEMP_DL_FOLDER.'/'.$_SESSION['username'],TEMP_DL_FOLDER.'/'.$_SESSION['username'].'.zip');
@@ -107,6 +109,3 @@ ob_clean();
 flush();
 readfile(TEMP_DL_FOLDER.'/'.$_SESSION['username'].'.zip');
 exit;
-
-?>
-

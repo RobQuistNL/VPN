@@ -1,5 +1,8 @@
 <?php
-//Simple function to include Zend Framework 2 as a standalone app.
+/**
+ * Simple function to include Zend Framework 2 as a standalone app.
+ */
+
 $zf2Path = APP_PATH.'/vendor/zf2/library';
 
 if ($zf2Path) {
@@ -18,4 +21,3 @@ if ($zf2Path) {
 if (!class_exists('Zend\Loader\AutoloaderFactory')) {
     throw new RuntimeException('Unable to load ZF2. Check the zf2Path in inc/embed_zf2.php');
 }
-?>
