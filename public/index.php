@@ -11,7 +11,7 @@ session_start();
 
 /* DEBUG DATA */
 //error_reporting(-1);
-//ini_set('display_errors' , 1);
+//ini_set('display_errors', 1);
 
 /* Include Config */
 require "inc/config.inc.php";
@@ -28,9 +28,9 @@ require "inc/bootStrapper.inc.php";
 require "inc/languageParser.inc.php";
 
 /* Catch the page */
-$page='home';
+$page = 'home';
 if (isset($_GET["p"])) {
-    $page=$_GET["p"];
+    $page = $_GET["p"];
 }
 
 /* Create the objects */
@@ -53,10 +53,10 @@ switch ($page) {
      */
     case 'home':
         $TP->setTitle($lang->t('login'));
-        $TP->setContent($BS->heroUnit($lang->t('hometitle') , $lang->t('hometext')));
+        $TP->setContent($BS->heroUnit($lang->t('hometitle'), $lang->t('hometext')));
         $TP->appendContent($BS->row(
                                     $BS->block(12,
-                                        $BS->loginForm($lang->t('username') , $lang->t('password') , $lang->t('signin') , 'login.html'))
+                                        $BS->loginForm($lang->t('username'), $lang->t('password'), $lang->t('signin'), 'login.html'))
                                     )
                             );
         break;
@@ -66,7 +66,7 @@ switch ($page) {
      */
     case 'logout':
         $TP->setTitle($lang->t('logout'));
-        $TP->setContent($BS->heroUnit($lang->t('logout') , $lang->t('loggedouttext')));
+        $TP->setContent($BS->heroUnit($lang->t('logout'), $lang->t('loggedouttext')));
         session_destroy();
         session_regenerate_id(true); //Regen the sessionid
         break;
@@ -94,47 +94,47 @@ switch ($page) {
         );
         $ldap = new Zend\Ldap\Ldap($options);
         try {
-            //$result = $ldap->search('(&(objectClass=user)(memberOf:1.2.840.113556.1.4.1941:=CN=VPN,OU=Roles,DC=enrise,DC=com))' , 'dc=enrise,dc=com');
-            $result[0]['samaccountname'][0]=$_POST["username"];
+            $result = $ldap->search('(&(objectClass=user)(memberOf:1.2.840.113556.1.4.1941:=CN=VPN,OU=Roles,DC=enrise,DC=com))', 'dc=enrise,dc=com');
+            //$result[0]['samaccountname'][0]=$_POST["username"]; <- Debug, will always let you log in.
         } catch (Exception $e) {
-            if (substr($e->getMessage() , 0 , 4)=='0x31') { //Invalid credentials
+            if (substr($e->getMessage(), 0, 4) == '0x31') { //Invalid credentials
                 header("HTTP/1.0 401 Unauthorized");
                 $DB->putLogin($_POST["username"]);
                 $TP->setContent($BS->errormessage($lang->t('invalid_credentials')));
                 $TP->appendContent($BS->row(
-                                    $BS->block(12 , $BS->loginForm($lang->t('username') , $lang->t('password') , $lang->t('signin') , 'login.html'))
+                                    $BS->block(12, $BS->loginForm($lang->t('username'), $lang->t('password'), $lang->t('signin'), 'login.html'))
                                     )
                             );
             } else { //Something else went wrong
                 header("HTTP/1.0 503 Service Unavailable");
                 $TP->setContent($BS->errormessage($lang->t('ldap_server_not_reachable')));
                 $TP->appendContent($BS->row(
-                                    $BS->block(12 , $BS->loginForm($lang->t('username') , $lang->t('password') , $lang->t('signin') , 'login.html'))
+                                    $BS->block(12, $BS->loginForm($lang->t('username'), $lang->t('password'), $lang->t('signin'), 'login.html'))
                                     )
                             );
             }
             break;
         }
         
-        $allowed=0;
-        $user=$_POST["username"];
+        $allowed = 0;
+        $user = $_POST["username"];
         foreach ($result as $item) {
-            if ($item['samaccountname'][0]==$user) {
-                $allowed=1;
+            if ($item['samaccountname'][0] == $user) {
+                $allowed = 1;
             }
         }
         $TP->appendContent($BS->successmessage($lang->t('loggedin')));
         
         if ($allowed==1) { //Allowed to use VPN. Show the downloadbuttons!
             header("HTTP/1.0 200 OK");
-            $_SESSION["username"]=$_POST['username'];
-            $_SESSION["ip"]=$_SERVER["REMOTE_ADDR"]; //Session stealing security / logging 
+            $_SESSION["username"] = $_POST['username'];
+            $_SESSION["ip"] = $_SERVER["REMOTE_ADDR"]; //Session stealing security / logging 
             
             $TP->appendContent($BS->row(
-                                    $BS->block(3 , '<H2>Windows</H2><a href="download.php?kind=win">Download .zip</a>') .
-                                    $BS->block(3 , '<H2>Windows + Installer</H2><a href="download.php?kind=winmsi">Download .zip</a>') .
-                                    $BS->block(3 , '<H2>Linux</H2><a href="download.php?kind=linux">Download .zip</a>') .
-                                    $BS->block(3 , '<H2>Mac</H2><a href="download.php?kind=mac">Download .zip</a>')
+                                    $BS->block(3, '<H2>Windows</H2><a href="download.php?kind=win">Download .zip</a>') .
+                                    $BS->block(3, '<H2>Windows + Installer</H2><a href="download.php?kind=winmsi">Download .zip</a>') .
+                                    $BS->block(3, '<H2>Linux</H2><a href="download.php?kind=linux">Download .zip</a>') .
+                                    $BS->block(3, '<H2>Mac</H2><a href="download.php?kind=mac">Download .zip</a>')
                                     )
                             );
         } else { //Not allowed to use VPN
@@ -145,11 +145,7 @@ switch ($page) {
     
     default: //404
         header("HTTP/1.0 404 Not Found");
-        $TP->setContent(
-            $BS->row(
-                    $BS->block(12,'<H2>'.$lang->t('404title').'</H2><p>'.$lang->t('404text').'</p>')
-                )
-        );
+        $TP->setContent( $BS->row( $BS->block(12, '<H2>' . $lang->t('404title') . '</H2><p>' . $lang->t('404text') . '</p>') ) );
         break;
 
 }

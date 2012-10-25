@@ -12,12 +12,12 @@ class BootStrapper
      * @param string $content <The content text of the unit>
      * @return string <HTML formatted code>
      */
-    public function heroUnit($title,$content) 
+    public function heroUnit($title , $content) 
     {
         return '<div class="hero-unit">
-        <h1>'.$title.'</h1>
-        <p>'.$content.'</p>
-      </div>';
+        <h1>' . $title . '</h1>
+        <p>' . $content . '</p>
+        </div>';
     }
     
     /**
@@ -28,7 +28,7 @@ class BootStrapper
      */
     public function row($content) 
     {
-        return '<div class="row">'.$content.'</div>';
+        return '<div class="row">' . $content . '</div>';
     }
     
     /**
@@ -39,7 +39,7 @@ class BootStrapper
      */
     public function errormessage($content) 
     {
-        return '<div class="alert alert-error">'.$content.'</div>';
+        return '<div class="alert alert-error">' . $content . '</div>';
     }
     
     /**
@@ -50,7 +50,7 @@ class BootStrapper
      */
     public function successmessage($content) 
     {
-        return '<div class="alert alert-success">'.$content.'</div>';
+        return '<div class="alert alert-success">' . $content . '</div>';
     }
     
     /**
@@ -60,9 +60,9 @@ class BootStrapper
      * @param string $content <The contents of the block>
      * @return string <HTML formatted code>
      */
-    public function block($size,$content) 
+    public function block($size , $content) 
     {
-        return '<div class="span'.$size.'">'.$content.'</div>';
+        return '<div class="span' . $size . '">' . $content . '</div>';
     }
     
     /**
@@ -74,19 +74,19 @@ class BootStrapper
      * @param string $action        <The action URL of the form>
      * @return string <HTML formatted code>
      */
-    public function loginForm ($usernametext,$passwordtext,$signintext,$action) 
+    public function loginForm ($usernametext , $passwordtext , $signintext , $action) 
     {
-        return '<form class="form-horizontal" method="post" action="'.$action.'">
+        return '<form class="form-horizontal" method="post" action="' . $action . '">
                   <div class="control-group">
-                    <label class="control-label" for="inputUsername">'.$usernametext.'</label>
+                    <label class="control-label" for="inputUsername">' . $usernametext . '</label>
                     <div class="controls">
-                      <input name="username" type="text" id="inputUsername" placeholder="'.$usernametext.'">
+                      <input name="username" type="text" id="inputUsername" placeholder="' . $usernametext . '">
                     </div>
                   </div>
                   <div class="control-group">
-                    <label class="control-label" for="inputPassword">'.$passwordtext.'</label>
+                    <label class="control-label" for="inputPassword">' . $passwordtext . '</label>
                     <div class="controls">
-                      <input name="password" type="password" id="inputPassword" placeholder="'.$passwordtext.'">
+                      <input name="password" type="password" id="inputPassword" placeholder="' . $passwordtext . '">
                     </div>
                   </div>
                   <div class="control-group">
@@ -94,7 +94,7 @@ class BootStrapper
                       <!--<label class="checkbox">
                         <input type="checkbox"> Remember me
                       </label>-->
-                      <button type="submit" class="btn">'.$signintext.'</button>
+                      <button type="submit" class="btn">' . $signintext . '</button>
                     </div>
                   </div>
                 </form>';

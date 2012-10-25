@@ -20,6 +20,7 @@ class LanguageParser
         if (!file_exists($langfile)) {
             throw new Exception('Language file does not exist. Change language file in configfile!');
         }
+        
         require LANG_FILE;
     }
     
@@ -32,7 +33,7 @@ class LanguageParser
     public function translate($id) 
     {
         
-        if (array_key_exists($id,$this->text_array)) {
+        if (array_key_exists($id, $this->text_array)) {
             return $this->text_array[$id];
         } else {
             return $id;

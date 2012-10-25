@@ -48,7 +48,7 @@ class DB
 	function putLogin($username) 
     {
 		$query = "INSERT INTO logins (ipaddress,logged_time,username) 
-                VALUES ('".$_SERVER["REMOTE_ADDR"]."',DATETIME('now'),'".sqlite_escape_string($username)."')";
+                VALUES ('" . $_SERVER["REMOTE_ADDR"]."', DATETIME('now'), '" . sqlite_escape_string($username) . "')";
 		@$q = sqlite_query($this->handle, $query);
 		
 		if (!$q) {
@@ -66,13 +66,13 @@ class DB
     {
 		$query = "SELECT COUNT(*) as times
                     FROM logins 
-                    WHERE logged_time >= DATETIME('now', '-".($minutes*60)." seconds') AND ipaddress='".$_SERVER["REMOTE_ADDR"]."'";
+                    WHERE logged_time >= DATETIME('now', '-" . ($minutes*60) . " seconds') AND ipaddress='" . $_SERVER["REMOTE_ADDR"] . "'";
 		@$q = sqlite_query($this->handle, $query);
 		if (!$q) {
 		   throw new Exception ("Cannot query database. $error");
 		}
 		
-		$r=sqlite_fetch_array($q, SQLITE_NUM); 
+		$r = sqlite_fetch_array($q, SQLITE_NUM); 
 		return (int)$r[0];
     }
 }

@@ -30,8 +30,9 @@ class SimpleTemplateParser
     private function initParseVars() 
     {
         /* Add some default values to be parsed. Can be edited for lateron */
-        $this->parsevars=array(    'CONTENT'=>$this->content,
-                                'TITLE'=>$this->title,
+        $this->parsevars = array(    
+                                'CONTENT'   => $this->content,
+                                'TITLE'     => $this->title,
                                 );
     }
     
@@ -42,7 +43,7 @@ class SimpleTemplateParser
      */
     public function setTemplate($file) 
     {
-        $this->templateFile=$file;
+        $this->templateFile = $file;
     }
     
     /**
@@ -52,7 +53,7 @@ class SimpleTemplateParser
      */
     public function setContent($string) 
     {
-        $this->content=$string;
+        $this->content = $string;
     }
     
     /**
@@ -62,7 +63,7 @@ class SimpleTemplateParser
      */
     public function setTitle($string) 
     {
-        $this->title=$string;
+        $this->title = $string;
     }
     
     /**
@@ -72,7 +73,7 @@ class SimpleTemplateParser
      */
     public function appendContent($string) 
     {
-        $this->content.=$string;
+        $this->content .= $string;
     }
     
     /**
@@ -82,7 +83,7 @@ class SimpleTemplateParser
      */
     public function prependContent($string) 
     {
-        $this->content=$string.$this->content;
+        $this->content = $string . $this->content;
     }
     
     /**
@@ -96,30 +97,31 @@ class SimpleTemplateParser
         if ($this->templateFile=='') {
             throw new Exception('No template file selected.');
         }
+        
         if (!file_exists($this->templateFile)) {
-            if (!file_exists(PUBLIC_PATH.'/view/'.$this->templateFile)) {
-                throw new Exception('Template file '.$this->templateFile.' not found in '.getcwd().' or '.PUBLIC_PATH.'/view/');
+            if (!file_exists(PUBLIC_PATH . '/view/' . $this->templateFile)) {
+                throw new Exception('Template file ' . $this->templateFile . ' not found in ' . getcwd() . ' or ' . PUBLIC_PATH . '/view/');
             } else {
-                $this->output=file_get_contents(PUBLIC_PATH.'/view/'.$this->templateFile);
+                $this->output = file_get_contents(PUBLIC_PATH . '/view/' . $this->templateFile);
             }
         } else {
-            $this->output=file_get_contents($this->templateFile);
+            $this->output = file_get_contents($this->templateFile);
         }
         
         $this->initParseVars();
         /**
          * This is quick, and dirty. Aware of that fact. Works for now.
-         * @todo Make a flexible parse variable system.
+         * @todo Make a flexible variable parsing system.
          */
         if (isset($_SESSION['username'])) { 
-            $this->parsevars['LOGOUTBUTTON']='<li><a href="logout.html">Log out</a></li>'; 
+            $this->parsevars['LOGOUTBUTTON'] = '<li><a href="logout.html">Log out</a></li>'; 
         } else {
-            $this->parsevars['LOGOUTBUTTON']=''; 
+            $this->parsevars['LOGOUTBUTTON'] = ''; 
         }
         
         
         foreach ($this->parsevars as $key => $value) {
-            $this->output=str_replace('{{'.$key.'}}',$value,$this->output);
+            $this->output = str_replace('{{' . $key . '}}', $value, $this->output);
         }
 
     }
@@ -133,13 +135,11 @@ class SimpleTemplateParser
     public function getOutput() 
     {
     
-        if ($this->isParsed) {
-            return $this->output;
-        } else {
+        if (!$this->isParsed) {
             $this->parse();
-            return $this->output;
         }
         
+        return $this->output;
     }
 
 }
