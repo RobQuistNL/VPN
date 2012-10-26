@@ -131,10 +131,10 @@ switch ($page) {
             $_SESSION["ip"] = $_SERVER["REMOTE_ADDR"]; //Session stealing security / logging 
             
             $TP->appendContent($BS->row(
-                                    $BS->block(3, '<H2>Windows</H2><a href="download.php?kind=win">Download .zip</a>') .
-                                    $BS->block(3, '<H2>Windows + Installer</H2><a href="download.php?kind=winmsi">Download .zip</a>') .
+                                    $BS->block(3, '<H2>Alleen Config</H2><a href="download.php?kind=config">Download .zip</a>') .
+                                    $BS->block(3, '<H2>Windows + Installer</H2><a href="download.php?kind=winexe">Download .zip</a>') .
                                     $BS->block(3, '<H2>Linux</H2><a href="download.php?kind=linux">Download .zip</a>') .
-                                    $BS->block(3, '<H2>Mac</H2><a href="download.php?kind=mac">Download .zip</a>')
+                                    $BS->block(3, '<H2>Mac + Installer</H2><a href="download.php?kind=mac">Download .zip</a>')
                                     )
                             );
         } else { //Not allowed to use VPN
