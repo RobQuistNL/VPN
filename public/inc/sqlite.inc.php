@@ -14,17 +14,12 @@ class DB
      */
 	function __construct() 
     {
-        try {
-            $this->handle = new PDO('sqlite:'.APP_PATH.'/db/sqlite.db');
-            if (!$this->handle)  {
-                throw new Exception('PDO SQLITE handle could not be created.');
-            }
-            $this->handle->setAttribute(PDO::ATTR_ERRMODE, 
-                                        PDO::ERRMODE_EXCEPTION);
-        } catch(PDOException $e) {
-            // Print PDOException message
-            echo $e->getMessage();
-        }                             
+        $this->handle = new PDO('sqlite:'.APP_PATH.'/db/sqlite.db');
+        if (!$this->handle)  {
+            throw new Exception('PDO SQLITE handle could not be created.');
+        }
+        $this->handle->setAttribute(PDO::ATTR_ERRMODE, 
+                                    PDO::ERRMODE_EXCEPTION);                        
 	}
 	
     /**
@@ -33,17 +28,12 @@ class DB
      */
 	function install() 
     {
-        try {
-            $createQuery = 	"CREATE TABLE logins (Id integer PRIMARY KEY," . 
-                    "ipaddress varchar(39) NOT NULL, logged_time datetime, username varchar(100))";
-            $this->handle->exec($createQuery);
-                    
-            $createQuery = "CREATE INDEX logged_time_index ON logins (logged_time)";
-            $this->handle->exec($createQuery);
-        } catch(PDOException $e) {
-            // Print PDOException message
-            echo $e->getMessage();
-        }
+        $createQuery = 	"CREATE TABLE logins (Id integer PRIMARY KEY," . 
+                "ipaddress BINARY, logged_time datetime, username varchar(100))";
+        $this->handle->exec($createQuery);
+                
+        $createQuery = "CREATE INDEX logged_time_index ON logins (logged_time)";
+        $this->handle->exec($createQuery);
         
 	}
 	
@@ -54,21 +44,15 @@ class DB
      */
 	function putLogin($username) 
     {
-        try {
-            $insert = "INSERT INTO logins (ipaddress,logged_time,username)
-                    VALUES (:ip, DATETIME('now'), :username)";
-            $stmt = $this->handle->prepare($insert);
-         
-            // Bind parameters to statement variables
-            $stmt->bindParam(':ip', $_SERVER["REMOTE_ADDR"]);
-            $stmt->bindParam(':username', sqlite_escape_string($username));
-            
-            $stmt->execute();
-            
-        } catch(PDOException $e) {
-            // Print PDOException message
-            echo $e->getMessage();
-        }
+        $insert = "INSERT INTO logins (ipaddress,logged_time,username)
+                VALUES (:ip, DATETIME('now'), :username)";
+        $stmt = $this->handle->prepare($insert);
+     
+        // Bind parameters to statement variables
+        $stmt->bindParam(':ip', inet_pton($_SERVER["REMOTE_ADDR"]));
+        $stmt->bindParam(':username', sqlite_escape_string($username));
+        
+        $stmt->execute();
 	}
 	
     /**
@@ -79,15 +63,11 @@ class DB
      */
 	function getLoginsSince($minutes) 
     {
-        try {
-            $result = $this->handle->query("SELECT COUNT(*) as times
-                        FROM logins 
-                        WHERE logged_time >= DATETIME('now', '-" . ($minutes*60) . " seconds') AND ipaddress='" . $_SERVER["REMOTE_ADDR"] . "'")->fetch();
-            
-            return $result[0];
-        } catch(PDOException $e) {
-            // Print PDOException message
-            echo $e->getMessage();
-        }
+
+        $result = $this->handle->query("SELECT COUNT(*) as times
+                    FROM logins 
+                    WHERE logged_time >= DATETIME('now', '-" . ($minutes*60) . " seconds') AND ipaddress='" . inet_pton($_SERVER["REMOTE_ADDR"]) . "'")->fetch();
+        
+        return $result[0];
     }
 }
