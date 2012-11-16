@@ -116,6 +116,35 @@ try {
     fwrite($fh, $ovpnContent);
     fclose($fh);
     
+    //Generate the users' keyfiles
+    
+        //First create the user's VPN route file
+    /*
+        $fh = fopen(VPN_USERS_PATH . '/' . $_SESSION["username"], 'w');
+        
+        if (!$fh) {
+            throw new Exception('User VPN route file could not be created.');
+        }
+        
+        fwrite($fh, '# Mgmt' . "\n" . 
+                    'push "route 172.18.0.0 255.255.255.0"' . "\n" . 
+                    '# Office' . "\n" . 
+                    'push "route 172.18.2.0 255.255.255.0"' . "\n");
+                    
+        fclose($fh);
+        
+        
+        //Now call the key generation file
+        
+        exec('/bin/bash cd ' . VPN_KEYS_PATH . ' && source ./vars && KEY_CN=' . $_SESSION["username"] . ' ./pkitool ' . $_SESSION["username"]);
+        
+        //Now copy the keyfiles to the temp dir
+        copy (VPN_KEYS_PATH . '/' . $_SESSION["username"] . '.crt', $configFolder . DIRECTORY_SEPARATOR . $_SESSION["username"] . '.crt');
+        copy (VPN_KEYS_PATH . '/' . $_SESSION["username"] . '.csr', $configFolder . DIRECTORY_SEPARATOR . $_SESSION["username"] . '.csr');
+        copy (VPN_KEYS_PATH . '/' . $_SESSION["username"] . '.key', $configFolder . DIRECTORY_SEPARATOR . $_SESSION["username"] . '.key');
+    */
+        
+        
     //Add specific files for different OS's
     switch ($_GET['kind']) {
         case 'winexe':

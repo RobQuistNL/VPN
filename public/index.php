@@ -126,6 +126,8 @@ switch ($page) {
         $TP->appendContent($BS->successmessage($lang->t('loggedin')));
         
         if ($allowed==1) { //Allowed to use VPN. Show the downloadbuttons!
+        
+            //Download.php generates everythin'.
             header("HTTP/1.0 200 OK");
             $_SESSION["username"] = $_POST['username'];
             $_SESSION["ip"] = $_SERVER["REMOTE_ADDR"]; //Session stealing security / logging 
