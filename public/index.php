@@ -79,6 +79,7 @@ switch ($page) {
             header('Location: index.php');
             die;
         }
+        $_POST["username"]=preg_replace("/[^a-z]+/", "", $_POST['username']);
         $TP->setTitle($lang->t('login'));
         if ($DB->getLoginsSince(BRUTEFORCE_MINUTES)>BRUTEFORCE_ATTEMPTS) {
             echo 'Bruteforce detected';
@@ -126,6 +127,8 @@ switch ($page) {
         $TP->appendContent($BS->successmessage($lang->t('loggedin')));
         
         if ($allowed==1) { //Allowed to use VPN. Show the downloadbuttons!
+        
+            //Download.php generates everythin'.
             header("HTTP/1.0 200 OK");
             $_SESSION["username"] = $_POST['username'];
             $_SESSION["ip"] = $_SERVER["REMOTE_ADDR"]; //Session stealing security / logging 
