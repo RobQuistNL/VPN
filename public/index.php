@@ -79,6 +79,7 @@ switch ($page) {
             header('Location: index.php');
             die;
         }
+        $_POST["username"]=preg_replace("/[^a-z]+/", "", $_POST['username']);
         $TP->setTitle($lang->t('login'));
         if ($DB->getLoginsSince(BRUTEFORCE_MINUTES)>BRUTEFORCE_ATTEMPTS) {
             echo 'Bruteforce detected';

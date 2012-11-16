@@ -86,9 +86,9 @@ resolv-retry infinite
 nobind
 persist-key
 persist-tun
-ca vpn.enrise.com.ca.crt
-cert vpn.enrise.com.user.crt
-key vpn.enrise.com.user.key
+ca ca.crt
+cert user-{$SESSION["username"]}.crt
+key user-{$SESSION["username"]}.key
 auth-user-pass
 cipher AES-256-CBC
 auth SHA1
@@ -112,36 +112,27 @@ try {
     $configFolder = TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'] . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $_SESSION['username'] . '@vpn.enrise.com';
     
     //Write config file
-    $fh = fopen($configFolder . DIRECTORY_SEPARATOR  . $_SESSION['username'] . '@vpn.enrise.com.ovpn', 'w');
-    fwrite($fh, $ovpnContent);
-    fclose($fh);
-    
+    file_put_contents($configFolder . DIRECTORY_SEPARATOR  . $_SESSION['username'] . '@vpn.enrise.com.ovpn',$ovpnContent);
+   
     //Generate the users' keyfiles
     
         //First create the user's VPN route file
     /*
-        $fh = fopen(VPN_USERS_PATH . '/' . $_SESSION["username"], 'w');
         
-        if (!$fh) {
-            throw new Exception('User VPN route file could not be created.');
-        }
-        
-        fwrite($fh, '# Mgmt' . "\n" . 
+        file_put_contents (VPN_USERS_PATH . '/' . $_SESSION["username"], '# Mgmt' . "\n" . 
                     'push "route 172.18.0.0 255.255.255.0"' . "\n" . 
                     '# Office' . "\n" . 
                     'push "route 172.18.2.0 255.255.255.0"' . "\n");
-                    
-        fclose($fh);
-        
         
         //Now call the key generation file
         
         exec('/bin/bash cd ' . VPN_KEYS_PATH . ' && source ./vars && KEY_CN=' . $_SESSION["username"] . ' ./pkitool ' . $_SESSION["username"]);
         
         //Now copy the keyfiles to the temp dir
-        copy (VPN_KEYS_PATH . '/' . $_SESSION["username"] . '.crt', $configFolder . DIRECTORY_SEPARATOR . $_SESSION["username"] . '.crt');
-        copy (VPN_KEYS_PATH . '/' . $_SESSION["username"] . '.csr', $configFolder . DIRECTORY_SEPARATOR . $_SESSION["username"] . '.csr');
-        copy (VPN_KEYS_PATH . '/' . $_SESSION["username"] . '.key', $configFolder . DIRECTORY_SEPARATOR . $_SESSION["username"] . '.key');
+        copy (VPN_KEYS_PATH . '/' . $_SESSION["username"] . '.crt', $configFolder . DIRECTORY_SEPARATOR . 'user-' . $_SESSION["username"] . '.crt');
+        copy (VPN_KEYS_PATH . '/' . $_SESSION["username"] . '.csr', $configFolder . DIRECTORY_SEPARATOR . 'user-' . $_SESSION["username"] . '.csr');
+        copy (VPN_KEYS_PATH . '/' . $_SESSION["username"] . '.key', $configFolder . DIRECTORY_SEPARATOR . 'user-' . $_SESSION["username"] . '.key');
+        copy (VPN_KEYS_PATH . '/../ca.crt', $configFolder . DIRECTORY_SEPARATOR . 'ca.crt');
     */
         
         
