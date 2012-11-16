@@ -15,4 +15,4 @@ define('BRUTEFORCE_ATTEMPTS', 10); //Maximum attemts in the given times, before 
 
 //VPN File storage
 define('VPN_USERS_PATH', '/etc/openvpn/users.conf.d');
-define('VPN_KEYS_PATH', '/etc/openvpn/easy-rsa');
+define('VPN_KEYS_PATH', '/etc/openvpn/easy-rsa/keys');

@@ -86,7 +86,7 @@ switch ($page) {
             die;
         }
         $options = array(
-            'host'                   => 'dc01.enrise.com',
+            'host'                   => '172.17.0.5',
             'useStartTls'            => false,
             'username'               => $_POST['username'],
             'password'               => $_POST['password'],

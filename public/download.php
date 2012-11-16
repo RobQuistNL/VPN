@@ -24,7 +24,7 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['ip'])) {
     header('Location: index.php');
     die;
 }
-if ($_SESSION['ip']!=$_SERVER["REMOTE_ADDR"]) {
+if ($_SESSION['ip'] != $_SERVER["REMOTE_ADDR"]) {
     header('Location: index.php');
     die;
 }
@@ -44,7 +44,7 @@ function deleteDir($dirPath) {
     }
     rmdir($dirPath);
 }
-    
+
 function Zip($source, $destination) {
     /* A function to zip a whole directory, recursively. */
     if (extension_loaded('zip') === true) {
@@ -74,21 +74,21 @@ function Zip($source, $destination) {
     }
     return false;
 }
-    
-$ovpnContent=<<<TXT
 
+$ovpnContent = <<<TXT
 client
 dev tun
 proto tcp
-remote vpn.enrise.com 443
-tls-remote "/C=nl/L=Amersfoort/O=4worx/CN=vpnhost.enrise.com/emailAddress=systeembeheer@4worx.com"
+# remote vpn.enrise.com 443
+remote 109.235.79.3 1194
+tls-remote "/C=NL/ST=UT/L=Amersfoort/O=Enrise/OU=Systeembeheer/CN=vpn01.public.cyso.enrise.net/emailAddress=systeembeheer@enrise.com"
 resolv-retry infinite
 nobind
 persist-key
 persist-tun
 ca ca.crt
-cert user-{$SESSION["username"]}.crt
-key user-{$SESSION["username"]}.key
+cert user-{$_SESSION["username"]}.crt
+key user-{$_SESSION["username"]}.key
 auth-user-pass
 cipher AES-256-CBC
 auth SHA1
@@ -98,62 +98,44 @@ verb 3
 reneg-sec 0
 
 TXT;
+
 try {
     //Remove the old files (if there are any)
     deleteDir(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username']);
     //Remove old .zip
     unlink(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR . $_SESSION['username'] . '.zip');
-    
-    //Create folder structure
-    mkdir(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'], 0777); //Make the dir
-    mkdir(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'] . DIRECTORY_SEPARATOR . 'config', 0777); 
-    mkdir(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'] . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $_SESSION['username'] . '@vpn.enrise.com', 0777); 
-    
+
     $configFolder = TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'] . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $_SESSION['username'] . '@vpn.enrise.com';
-    
-    //Write config file
+
+    $output;
+    $ret;
+    exec('/srv/http/portal/current/generateKey.sh ' . escapeshellarg($_SESSION['username']) . ' ' . escapeshellarg($configFolder), $output, $ret);
+    if ($ret !== 0) {
+	throw new exception('An error has occured while generating or retrieving user certificate');
+    }
+
     file_put_contents($configFolder . DIRECTORY_SEPARATOR  . $_SESSION['username'] . '@vpn.enrise.com.ovpn',$ovpnContent);
-   
-    //Generate the users' keyfiles
-    
-        //First create the user's VPN route file
-    /*
-        
-        file_put_contents (VPN_USERS_PATH . '/' . $_SESSION["username"], '# Mgmt' . "\n" . 
-                    'push "route 172.18.0.0 255.255.255.0"' . "\n" . 
-                    '# Office' . "\n" . 
+    file_put_contents (VPN_USERS_PATH . '/' . $_SESSION["username"], '# Mgmt' . "\n" .
+                    'push "route 172.18.0.0 255.255.255.0"' . "\n" .
+                    '# Office' . "\n" .
                     'push "route 172.18.2.0 255.255.255.0"' . "\n");
-        
-        //Now call the key generation file
-        
-        exec('/bin/bash cd ' . VPN_KEYS_PATH . ' && source ./vars && KEY_CN=' . $_SESSION["username"] . ' ./pkitool ' . $_SESSION["username"]);
-        
-        //Now copy the keyfiles to the temp dir
-        copy (VPN_KEYS_PATH . '/' . $_SESSION["username"] . '.crt', $configFolder . DIRECTORY_SEPARATOR . 'user-' . $_SESSION["username"] . '.crt');
-        copy (VPN_KEYS_PATH . '/' . $_SESSION["username"] . '.csr', $configFolder . DIRECTORY_SEPARATOR . 'user-' . $_SESSION["username"] . '.csr');
-        copy (VPN_KEYS_PATH . '/' . $_SESSION["username"] . '.key', $configFolder . DIRECTORY_SEPARATOR . 'user-' . $_SESSION["username"] . '.key');
-        copy (VPN_KEYS_PATH . '/../ca.crt', $configFolder . DIRECTORY_SEPARATOR . 'ca.crt');
-    */
-        
-        
+
+
     //Add specific files for different OS's
     switch ($_GET['kind']) {
         case 'winexe':
             copy(TEMP_DL_FOLDER . 'Viscosity.exe', TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'] . DIRECTORY_SEPARATOR . 'Viscosity Installer.exe');
             break;
-        
         case 'mac':
             copy(TEMP_DL_FOLDER . 'Viscosity.dmg', TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'] . DIRECTORY_SEPARATOR . 'Viscosity Installer.dmg');
             break;
-            
         case 'linux':
             copy(TEMP_DL_FOLDER . 'linux.pkg', TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'] . DIRECTORY_SEPARATOR . 'Viscosity Installer.pkg');
             break;
-            
     }
-    
 } catch (Exception $e) {
     echo 'Files could not be generated! Please contact an administrator.';
+    exit;
 }
 
 Zip(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR . $_SESSION['username'], TEMP_DL_FOLDER . DIRECTORY_SEPARATOR . $_SESSION['username'] . '.zip');
