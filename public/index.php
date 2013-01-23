@@ -1,4 +1,5 @@
 <?php
+
 /**
  * VPN Portal (http://www.enrise.com/)
  *
@@ -29,8 +30,8 @@ require "inc/languageParser.inc.php";
 
 /* Catch the page */
 $page = 'home';
-if (isset($_GET["p"])) {
-    $page = $_GET["p"];
+if (isset($_GET['p'])) {
+    $page = $_GET['p'];
 }
 
 /* Create the objects */
@@ -40,8 +41,18 @@ $TP = new SimpleTemplateParser();
 $TP->setTemplate('base_template.phtml');
 $DB = new DB;
 
-/* 
-***************************** TO INSTALL, RUN THESE 2 LINES. 
+// The config
+
+if (is_file(CONFIG_FILE)) {
+    require APP_PATH . '/vendor/zf2/library/Zend/Config/Reader/Ini.php';
+    $config = new Zend\Config\Reader\Ini();
+    $config = $config->fromFile(CONFIG_FILE);
+} else {
+    $config = array();
+}
+
+/*
+***************************** TO INSTALL, RUN THESE 2 LINES.
 */
 //$DB->install();
 //die;
@@ -55,12 +66,12 @@ switch ($page) {
         $TP->setTitle($lang->t('login'));
         $TP->setContent($BS->heroUnit($lang->t('hometitle'), $lang->t('hometext')));
         $TP->appendContent($BS->row(
-                                    $BS->block(12,
-                                        $BS->loginForm($lang->t('username'), $lang->t('password'), $lang->t('signin'), 'login.html'))
-                                    )
-                            );
+            $BS->block(12,
+                $BS->loginForm($lang->t('username'), $lang->t('password'), $lang->t('signin'), 'login.html'))
+            )
+        );
         break;
-    
+
     /**
      * The user wants to log out.
      */
@@ -70,7 +81,7 @@ switch ($page) {
         session_destroy();
         session_regenerate_id(true); //Regen the sessionid
         break;
-        
+
     /**
      * The user has submitted the login form.
      */
@@ -103,20 +114,20 @@ switch ($page) {
                 $DB->putLogin($_POST["username"]);
                 $TP->setContent($BS->errormessage($lang->t('invalid_credentials')));
                 $TP->appendContent($BS->row(
-                                    $BS->block(12, $BS->loginForm($lang->t('username'), $lang->t('password'), $lang->t('signin'), 'login.html'))
-                                    )
-                            );
+                    $BS->block(12, $BS->loginForm($lang->t('username'), $lang->t('password'), $lang->t('signin'), 'login.html'))
+                    )
+                );
             } else { //Something else went wrong
                 header("HTTP/1.0 503 Service Unavailable");
                 $TP->setContent($BS->errormessage($lang->t('ldap_server_not_reachable')));
                 $TP->appendContent($BS->row(
-                                    $BS->block(12, $BS->loginForm($lang->t('username'), $lang->t('password'), $lang->t('signin'), 'login.html'))
-                                    )
-                            );
+                    $BS->block(12, $BS->loginForm($lang->t('username'), $lang->t('password'), $lang->t('signin'), 'login.html'))
+                    )
+                );
             }
             break;
         }
-        
+
         $allowed = 0;
         $user = $_POST["username"];
         foreach ($result as $item) {
@@ -125,27 +136,33 @@ switch ($page) {
             }
         }
         $TP->appendContent($BS->successmessage($lang->t('loggedin')));
-        
+
         if ($allowed==1) { //Allowed to use VPN. Show the downloadbuttons!
-        
+
             //Download.php generates everythin'.
             header("HTTP/1.0 200 OK");
             $_SESSION["username"] = $_POST['username'];
-            $_SESSION["ip"] = $_SERVER["REMOTE_ADDR"]; //Session stealing security / logging 
-            
+            $_SESSION["ip"] = $_SERVER["REMOTE_ADDR"]; //Session stealing security / logging
+
+            $windowsSerial = '<span class="serial">Serial: ?</span>';
+            $osxSerial = '<span class="serial">Serial: ?</span>';
+            $linuxSerial = '<span class="serial">' . $lang->t('no_serial_needed') . '</span>';
+            if (array_key_exists('serials', $config)) {
+                $windowsSerial = '<span class="serial"><dl><dt>Name</dt><dd>Enrise, 4worx BV</dd><dt>E-mail</dt><dd>dolf@enrise.com</dd><dt>Serial</dt><dd> ' . $config['serials']['windows'] . '</dd></dl>';
+                $osxSerial = '<span class="serial"><dl><dt>Name</dt><dd>Enrise, 4worx BV</dd><dt>E-mail</dt><dd>dolf@enrise.com</dd><dt>Serial</dt><dd> ' . $config['serials']['osx'] . '</dd></dl>';
+            }
             $TP->appendContent($BS->row(
-                                    $BS->block(3, '<H2>Alleen Config</H2><a href="download.php?kind=config">Download .zip</a>') .
-                                    $BS->block(3, '<H2>Windows + Installer</H2><a href="download.php?kind=winexe">Download .zip</a>') .
-                                    $BS->block(3, '<H2>Linux</H2><a href="download.php?kind=linux">Download .zip</a>') .
-                                    $BS->block(3, '<H2>Mac + Installer</H2><a href="download.php?kind=mac">Download .zip</a>')
-                                    )
-                            );
+                $BS->block(3, '<H2>Alleen Config</H2><a href="download.php?kind=config">Download .zip</a>') .
+                $BS->block(3, '<H2>Windows + Installer</H2><a href="download.php?kind=winexe">Download .zip</a>' . $windowsSerial) .
+                $BS->block(3, '<H2>Linux</H2><a href="download.php?kind=linux">Download .zip</a>' . $linuxSerial) .
+                $BS->block(3, '<H2>OSX + Installer</H2><a href="download.php?kind=mac">Download .zip</a>' . $osxSerial)
+            ));
         } else { //Not allowed to use VPN
             header("HTTP/1.0 403 Forbidden");
             $TP->appendContent($BS->errormessage($lang->t('vpn_not_allowed')));
         }
         break;
-    
+
     default: //404
         header("HTTP/1.0 404 Not Found");
         $TP->setContent( $BS->row( $BS->block(12, '<H2>' . $lang->t('404title') . '</H2><p>' . $lang->t('404text') . '</p>') ) );
