@@ -101,17 +101,22 @@ TXT;
 
 try {
     //Remove the old files (if there are any)
-    deleteDir(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username']);
+    if (is_dir(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'])) {
+        deleteDir(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username']);
+    }
+
     //Remove old .zip
-    unlink(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR . $_SESSION['username'] . '.zip');
+    if (is_file(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR . $_SESSION['username'] . '.zip')) {
+        unlink(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR . $_SESSION['username'] . '.zip');
+    }
 
     $configFolder = TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'] . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $_SESSION['username'] . '@vpn.enrise.com';
 
     $output;
     $ret;
-    exec('/srv/http/portal/current/generateKey.sh ' . escapeshellarg($_SESSION['username']) . ' ' . escapeshellarg($configFolder), $output, $ret);
+    exec(APP_PATH . '/generateKey.sh ' . escapeshellarg($_SESSION['username']) . ' ' . escapeshellarg($configFolder), $output, $ret);
     if ($ret !== 0) {
-	throw new exception('An error has occured while generating or retrieving user certificate');
+	    throw new exception('An error has occured while generating or retrieving user certificate');
     }
 
     file_put_contents($configFolder . DIRECTORY_SEPARATOR  . $_SESSION['username'] . '@vpn.enrise.com.ovpn',$ovpnContent);

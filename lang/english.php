@@ -19,3 +19,6 @@ $this->text_array['ldap_server_not_reachable'] = 'LDAP server is unreachable.';
 $this->text_array['invalid_credentials'] = 'Invalid credentials.';
 $this->text_array['vpn_not_allowed'] = 'You are not allowed to use the VPN. Please contact a system administrator.';
 $this->text_array['loggedin'] = 'You have been successfully logged in.';
+
+/* VARIOUS MESSAGES */
+$this->text_array['no_serial_needed'] = 'No serial required';
