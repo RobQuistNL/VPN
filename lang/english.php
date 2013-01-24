@@ -21,4 +21,4 @@ $this->text_array['vpn_not_allowed'] = 'You are not allowed to use the VPN. Plea
 $this->text_array['loggedin'] = 'You have been successfully logged in.';
 
 /* VARIOUS MESSAGES */
-$this->text_array['no_serial_needed'] = 'No serial needed';
+$this->text_array['no_serial_needed'] = 'No serial required';

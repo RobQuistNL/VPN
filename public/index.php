@@ -128,16 +128,16 @@ switch ($page) {
             break;
         }
 
-        $allowed = 0;
+        $allowed = false;
         $user = $_POST["username"];
         foreach ($result as $item) {
             if ($item['samaccountname'][0] == $user) {
-                $allowed = 1;
+                $allowed = true;
             }
         }
         $TP->appendContent($BS->successmessage($lang->t('loggedin')));
 
-        if ($allowed==1) { //Allowed to use VPN. Show the downloadbuttons!
+        if (true === $allowed) { //Allowed to use VPN. Show the downloadbuttons!
 
             //Download.php generates everythin'.
             header("HTTP/1.0 200 OK");
@@ -148,9 +148,17 @@ switch ($page) {
             $osxSerial = '<span class="serial">Serial: ?</span>';
             $linuxSerial = '<span class="serial">' . $lang->t('no_serial_needed') . '</span>';
             if (array_key_exists('serials', $config)) {
-                $windowsSerial = '<span class="serial"><dl><dt>Name</dt><dd>Enrise, 4worx BV</dd><dt>E-mail</dt><dd>dolf@enrise.com</dd><dt>Serial</dt><dd> ' . $config['serials']['windows'] . '</dd></dl>';
-                $osxSerial = '<span class="serial"><dl><dt>Name</dt><dd>Enrise, 4worx BV</dd><dt>E-mail</dt><dd>dolf@enrise.com</dd><dt>Serial</dt><dd> ' . $config['serials']['osx'] . '</dd></dl>';
+                $windowsSerial = '<span class="serial"><dl>'
+                    . '<dt>Name</dt><dd>' . $config['serials']['windows']['name'] . '</dd>'
+                    . '<dt>E-mail</dt><dd>' . $config['serials']['windows']['email'] . '</dd>'
+                    . '<dt>Serial</dt><dd>' . $config['serials']['windows']['key'] . '</dd></dl>';
+
+                $osxSerial = '<span class="serial"><dl>'
+                    . '<dt>Name</dt><dd>' . $config['serials']['osx']['name'] . '</dd>'
+                    . '<dt>E-mail</dt><dd>' . $config['serials']['osx']['email'] . '</dd>'
+                    . '<dt>Serial</dt><dd>' . $config['serials']['osx']['key'] . '</dd></dl>';
             }
+
             $TP->appendContent($BS->row(
                 $BS->block(3, '<H2>Alleen Config</H2><a href="download.php?kind=config">Download .zip</a>') .
                 $BS->block(3, '<H2>Windows + Installer</H2><a href="download.php?kind=winexe">Download .zip</a>' . $windowsSerial) .
@@ -167,7 +175,6 @@ switch ($page) {
         header("HTTP/1.0 404 Not Found");
         $TP->setContent( $BS->row( $BS->block(12, '<H2>' . $lang->t('404title') . '</H2><p>' . $lang->t('404text') . '</p>') ) );
         break;
-
 }
 
 echo $TP->getOutput();
