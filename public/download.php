@@ -55,6 +55,9 @@ function Zip($source, $destination) {
                 if (is_dir($source) === true) {
                     $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source), RecursiveIteratorIterator::SELF_FIRST);
                     foreach ($files as $file) {
+                        if (is_link($file)) {
+                            continue;
+                        }
                         $file = realpath($file);
                         if (is_dir($file) === true) {
                             $zip->addEmptyDir(str_replace($source . DIRECTORY_SEPARATOR , '', $file . DIRECTORY_SEPARATOR ));
@@ -129,13 +132,13 @@ try {
     //Add specific files for different OS's
     switch ($_GET['kind']) {
         case 'winexe':
-            copy(TEMP_DL_FOLDER . 'Viscosity.exe', TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'] . DIRECTORY_SEPARATOR . 'Viscosity Installer.exe');
+            copy(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR . 'Viscosity.exe', TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'] . DIRECTORY_SEPARATOR . 'Viscosity Installer.exe');
             break;
         case 'mac':
-            copy(TEMP_DL_FOLDER . 'Viscosity.dmg', TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'] . DIRECTORY_SEPARATOR . 'Viscosity Installer.dmg');
+            copy(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR . 'Viscosity.dmg', TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'] . DIRECTORY_SEPARATOR . 'Viscosity Installer.dmg');
             break;
         case 'linux':
-            copy(TEMP_DL_FOLDER . 'linux.pkg', TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'] . DIRECTORY_SEPARATOR . 'Viscosity Installer.pkg');
+            copy(TEMP_DL_FOLDER . DIRECTORY_SEPARATOR . 'linux.pkg', TEMP_DL_FOLDER . DIRECTORY_SEPARATOR  . $_SESSION['username'] . DIRECTORY_SEPARATOR . 'Viscosity Installer.pkg');
             break;
     }
 } catch (Exception $e) {
