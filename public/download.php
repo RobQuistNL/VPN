@@ -123,10 +123,7 @@ try {
     }
 
     file_put_contents($configFolder . DIRECTORY_SEPARATOR  . $_SESSION['username'] . '@vpn.enrise.com.ovpn',$ovpnContent);
-    file_put_contents (VPN_USERS_PATH . '/' . $_SESSION["username"], '# Mgmt' . "\n" .
-                    'push "route 172.18.0.0 255.255.255.0"' . "\n" .
-                    '# Office' . "\n" .
-                    'push "route 172.18.2.0 255.255.255.0"' . "\n");
+    file_put_contents (VPN_USERS_PATH . DIRECTORY_SEPARATOR . $_SESSION['username'], file_get_contents(dirname(dirname(__FILE__)) . '/config/routing.txt');
 
 
     //Add specific files for different OS's
