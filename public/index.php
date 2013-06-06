@@ -90,14 +90,14 @@ switch ($page) {
             header('Location: index.php');
             die;
         }
-        $_POST["username"]=preg_replace("/[^a-z]+/", "", $_POST['username']);
+        $_POST["username"] = preg_replace("/[^a-z]+/", "", $_POST['username']);
         $TP->setTitle($lang->t('login'));
         if ($DB->getLoginsSince(BRUTEFORCE_MINUTES)>BRUTEFORCE_ATTEMPTS) {
             echo 'Bruteforce detected';
             die;
         }
         $options = array(
-            'host'                   => '172.17.0.5',
+            'host'                   => '172.17.0.5', //DC02.enrise.com
             'useStartTls'            => false,
             'username'               => $_POST['username'],
             'password'               => $_POST['password'],
@@ -165,6 +165,14 @@ switch ($page) {
                 $BS->block(3, '<H2>Linux</H2><a href="download.php?kind=linux">Download .zip</a>' . $linuxSerial) .
                 $BS->block(3, '<H2>OSX + Installer</H2><a href="download.php?kind=mac">Download .zip</a>' . $osxSerial)
             ));
+            
+            $TP->appendContent($BS->row(
+                $BS->block(12, '<br/><br/>' )) .
+                $BS->row(
+                    $BS->block(12, '<a href="http://wiki.enrise.com/wiki/VPN_instellen" target="_blank"> > Wiki page - More information on setting up your VPN.</a>' )
+                )
+            );
+            
         } else { //Not allowed to use VPN
             header("HTTP/1.0 403 Forbidden");
             $TP->appendContent($BS->errormessage($lang->t('vpn_not_allowed')));
@@ -173,7 +181,7 @@ switch ($page) {
 
     default: //404
         header("HTTP/1.0 404 Not Found");
-        $TP->setContent( $BS->row( $BS->block(12, '<H2>' . $lang->t('404title') . '</H2><p>' . $lang->t('404text') . '</p>') ) );
+        $TP->setContent( $BS->row( $BS->block(12, '<h2>' . $lang->t('404title') . '</h2><p>' . $lang->t('404text') . '</p>') ) );
         break;
 }
 
