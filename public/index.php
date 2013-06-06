@@ -10,9 +10,9 @@
 /* Start session */
 session_start();
 
-/* DEBUG DATA */
-error_reporting(-1);
-ini_set('display_errors', 1);
+/* UNCOMMENT FOR DEBUG DATA */
+//error_reporting(-1);
+//ini_set('display_errors', 1);
 
 /* Include Config */
 require "inc/config.inc.php";
@@ -107,10 +107,13 @@ switch ($page) {
         $ldap = new Zend\Ldap\Ldap($options);
         try {
             $result = $ldap->search('(&(objectClass=user)(memberOf:1.2.840.113556.1.4.1941:=CN=VPN,OU=Roles,DC=enrise,DC=com))', 'dc=enrise,dc=com');
-            //$result[0]['samaccountname'][0]=$_POST["username"]; <- Debug, will always let you log in.
+            
+            //$result[0]['samaccountname'][0]=$_POST["username"]; <- Debug, this will always let you log in.
+            
         } catch (Exception $e) {
             
-            if (substr($e->getMessage(), 0, 4) == '0x31' || strlen($_POST["password"]) < 3 || strlen($_POST["username"]) < 3) { //Invalid credentials
+            if (substr($e->getMessage(), 0, 4) == '0x31' || strlen($_POST["password"]) < 3 || strlen($_POST["username"]) < 3) {
+                //Invalid credentials
                 header("HTTP/1.0 401 Unauthorized");
                 $DB->putLogin($_POST["username"]);
                 $TP->setContent($BS->errormessage($lang->t('invalid_credentials')));
