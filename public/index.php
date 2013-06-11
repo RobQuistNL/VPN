@@ -10,7 +10,7 @@
 /* Start session */
 session_start();
 
-/* DEBUG DATA */
+/* UNCOMMENT FOR DEBUG DATA */
 //error_reporting(-1);
 //ini_set('display_errors', 1);
 
@@ -90,14 +90,14 @@ switch ($page) {
             header('Location: index.php');
             die;
         }
-        $_POST["username"]=preg_replace("/[^a-z]+/", "", $_POST['username']);
+        $_POST["username"] = preg_replace("/[^a-z]+/", "", $_POST['username']);
         $TP->setTitle($lang->t('login'));
         if ($DB->getLoginsSince(BRUTEFORCE_MINUTES)>BRUTEFORCE_ATTEMPTS) {
             echo 'Bruteforce detected';
             die;
         }
         $options = array(
-            'host'                   => '172.17.0.5',
+            'host'                   => '172.17.0.5', //DC02.enrise.com
             'useStartTls'            => false,
             'username'               => $_POST['username'],
             'password'               => $_POST['password'],
@@ -107,9 +107,13 @@ switch ($page) {
         $ldap = new Zend\Ldap\Ldap($options);
         try {
             $result = $ldap->search('(&(objectClass=user)(memberOf:1.2.840.113556.1.4.1941:=CN=VPN,OU=Roles,DC=enrise,DC=com))', 'dc=enrise,dc=com');
-            //$result[0]['samaccountname'][0]=$_POST["username"]; <- Debug, will always let you log in.
+            
+            //$result[0]['samaccountname'][0]=$_POST["username"]; <- Debug, this will always let you log in.
+            
         } catch (Exception $e) {
-            if (substr($e->getMessage(), 0, 4) == '0x31') { //Invalid credentials
+            
+            if (substr($e->getMessage(), 0, 4) == '0x31' || strlen($_POST["password"]) < 3 || strlen($_POST["username"]) < 3) {
+                //Invalid credentials
                 header("HTTP/1.0 401 Unauthorized");
                 $DB->putLogin($_POST["username"]);
                 $TP->setContent($BS->errormessage($lang->t('invalid_credentials')));
@@ -125,7 +129,9 @@ switch ($page) {
                     )
                 );
             }
-            break;
+            
+            echo $TP->getOutput();
+            die;
         }
 
         $allowed = false;
@@ -165,6 +171,14 @@ switch ($page) {
                 $BS->block(3, '<H2>Linux</H2><a href="download.php?kind=linux">Download .zip</a>' . $linuxSerial) .
                 $BS->block(3, '<H2>OSX + Installer</H2><a href="download.php?kind=mac">Download .zip</a>' . $osxSerial)
             ));
+            
+            $TP->appendContent($BS->row(
+                $BS->block(12, '<br/><br/>' )) .
+                $BS->row(
+                    $BS->block(12, '<a href="http://wiki.enrise.com/wiki/VPN_instellen" target="_blank"> > Wiki page - More information on setting up your VPN.</a>' )
+                )
+            );
+            
         } else { //Not allowed to use VPN
             header("HTTP/1.0 403 Forbidden");
             $TP->appendContent($BS->errormessage($lang->t('vpn_not_allowed')));
@@ -173,7 +187,7 @@ switch ($page) {
 
     default: //404
         header("HTTP/1.0 404 Not Found");
-        $TP->setContent( $BS->row( $BS->block(12, '<H2>' . $lang->t('404title') . '</H2><p>' . $lang->t('404text') . '</p>') ) );
+        $TP->setContent( $BS->row( $BS->block(12, '<h2>' . $lang->t('404title') . '</h2><p>' . $lang->t('404text') . '</p>') ) );
         break;
 }
 

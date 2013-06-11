@@ -49,10 +49,18 @@ class DB
         $stmt = $this->handle->prepare($insert);
      
         // Bind parameters to statement variables
-        $stmt->bindParam(':ip', inet_pton($_SERVER["REMOTE_ADDR"]));
-        $stmt->bindParam(':username', sqlite_escape_string($username));
+        $ip = inet_pton($_SERVER["REMOTE_ADDR"]);
+        $username = sqlite_escape_string($username);
         
-        $stmt->execute();
+        $stmt->bindParam(':ip', $ip);
+        $stmt->bindParam(':username', $username);
+        
+        try {
+            $stmt->execute();
+        } catch (PDOException $e) {
+            throw new Exception('SQLITE ERROR:' .$e->getMessage());
+        }
+        
 	}
 	
     /**
