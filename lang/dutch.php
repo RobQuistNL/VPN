@@ -15,7 +15,7 @@ $this->text_array['username'] = 'Gebruikersnaam';
 $this->text_array['signin'] = 'Inloggen';
 $this->text_array['login'] = 'Login';
 
-$this->text_array['ldap_server_not_reachable'] = 'LDAP server is onbereikbaar.';
+$this->text_array['ldap_server_not_reachable'] = 'Service niet bereikbaar.';
 $this->text_array['invalid_credentials'] = 'Ongeldige gebruikersnaam / wachtwoordcombinatie.';
 $this->text_array['vpn_not_allowed'] = 'U bent niet gemachtigd de VPN te gebruiken. Neem contact op met een systeembeheerder.';
 $this->text_array['loggedin'] = 'U bent ingelogd.';

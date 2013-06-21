@@ -15,7 +15,7 @@ $this->text_array['username'] = 'Username';
 $this->text_array['signin'] = 'Sign in';
 $this->text_array['login'] = 'Login';
 
-$this->text_array['ldap_server_not_reachable'] = 'LDAP server is unreachable.';
+$this->text_array['ldap_server_not_reachable'] = 'Service unavailable.';
 $this->text_array['invalid_credentials'] = 'Invalid credentials.';
 $this->text_array['vpn_not_allowed'] = 'You are not allowed to use the VPN. Please contact a system administrator.';
 $this->text_array['loggedin'] = 'You have been successfully logged in.';

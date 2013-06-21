@@ -10,18 +10,21 @@
 /* Start session */
 session_start();
 
-/* UNCOMMENT FOR DEBUG DATA */
-//error_reporting(-1);
-//ini_set('display_errors', 1);
-
 /* Include Config */
 require "inc/config.inc.php";
 
-/* Include ZF2 */
-require "inc/embed_zf2.inc.php";
+if (DEBUG) {
+    error_reporting(-1);
+    ini_set('display_errors', 1);
+}
 
-/* Database handler */
+/* Include dependencies */
+require "inc/embed_zf2.inc.php";
 require "inc/sqlite.inc.php";
+require "../vendor/adLDAP/lib/adLDAP/adLDAP.php";
+
+use adLDAP\adLdap;
+use adLDAP\adLDAPException;
 
 /* Include the most simplistic templateparser & languageparser & bootstrap generator */
 require "inc/templateParser.inc.php";
@@ -49,6 +52,24 @@ if (is_file(CONFIG_FILE)) {
     $config = $config->fromFile(CONFIG_FILE);
 } else {
     $config = array();
+}
+
+//Initialize adLDAP
+try {
+    $adldap = new adLDAP($adldapOptions);
+}
+catch (adLDAPException $e) {
+    if (DEBUG) {
+        $TP->appendContent($BS->errormessage('EXCEPTION:'.$e));
+    }
+    header("HTTP/1.0 503 Service Unavailable");
+    $TP->setContent($BS->errormessage($lang->t('ldap_server_not_reachable')));
+    $TP->appendContent($BS->row(
+        $BS->block(12, $BS->loginForm($lang->t('username'), $lang->t('password'), $lang->t('signin'), 'login.html'))
+        )
+    );
+    echo $TP->getOutput();
+    die;
 }
 
 /*
@@ -96,53 +117,34 @@ switch ($page) {
             echo 'Bruteforce detected';
             die;
         }
-        $options = array(
-            'host'                   => '172.17.0.5', //DC02.enrise.com
-            'useStartTls'            => false,
-            'username'               => $_POST['username'],
-            'password'               => $_POST['password'],
-            'accountDomainName'      => 'enrise.com',
-            'baseDn'                 => 'DC=enrise,DC=com',
-        );
-        $ldap = new Zend\Ldap\Ldap($options);
-        try {
-            $result = $ldap->search('(&(objectClass=user)(memberOf:1.2.840.113556.1.4.1941:=CN=VPN,OU=Roles,DC=enrise,DC=com))', 'dc=enrise,dc=com');
+        
+        //Prerequisites are good. Lets check the AD.
+                
+        $loginResult = $adldap->user()->authenticate($_POST["username"], $_POST["password"]);
             
-            //$result[0]['samaccountname'][0]=$_POST["username"]; <- Debug, this will always let you log in.
-            
-        } catch (Exception $e) {
-            
-            if (substr($e->getMessage(), 0, 4) == '0x31' || strlen($_POST["password"]) < 3 || strlen($_POST["username"]) < 3) {
-                //Invalid credentials
-                header("HTTP/1.0 401 Unauthorized");
-                $DB->putLogin($_POST["username"]);
-                $TP->setContent($BS->errormessage($lang->t('invalid_credentials')));
-                $TP->appendContent($BS->row(
-                    $BS->block(12, $BS->loginForm($lang->t('username'), $lang->t('password'), $lang->t('signin'), 'login.html'))
-                    )
-                );
-            } else { //Something else went wrong
-                header("HTTP/1.0 503 Service Unavailable");
-                $TP->setContent($BS->errormessage($lang->t('ldap_server_not_reachable')));
-                $TP->appendContent($BS->row(
-                    $BS->block(12, $BS->loginForm($lang->t('username'), $lang->t('password'), $lang->t('signin'), 'login.html'))
-                    )
-                );
-            }
-            
+        //Check if the user is logged in
+        if (true !== $loginResult) {
+            //Invalid credentials
+            header("HTTP/1.0 401 Unauthorized");
+            $DB->putLogin($_POST["username"]);
+            $TP->setContent($BS->errormessage($lang->t('invalid_credentials')));
+            $TP->appendContent($BS->row(
+                $BS->block(12, $BS->loginForm($lang->t('username'), $lang->t('password'), $lang->t('signin'), 'login.html'))
+                )
+            );
             echo $TP->getOutput();
             die;
         }
-
-        $allowed = false;
-        $user = $_POST["username"];
-        foreach ($result as $item) {
-            if ($item['samaccountname'][0] == $user) {
-                $allowed = true;
-            }
-        }
+        
+        //Tell the user he / she's logged in
         $TP->appendContent($BS->successmessage($lang->t('loggedin')));
-
+        
+        //Fetch all the groups the users' a member of. 
+        //You could use inGroup() with a GUID, but you'd have to fill in 
+        //administrator passwords in the config.
+        //Example: $allowed = $adldap->user()->inGroup($_POST["username"], VPN_GROUP_GUID, true, true);
+        $allowed = $adldap->user()->inGroup($_POST["username"], VPN_GROUP_NAME, true, false);
+        
         if (true === $allowed) { //Allowed to use VPN. Show the downloadbuttons!
 
             //Download.php generates everythin'.
